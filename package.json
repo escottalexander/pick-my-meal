@@ -1,0 +1,15 @@
+{
+  "name": "pick-my-meal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Elliott Alexander",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "morgan": "^1.9.1"
+  }
+}
