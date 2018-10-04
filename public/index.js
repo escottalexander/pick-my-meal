@@ -95,7 +95,7 @@ function renderSideDishes(arr) {
 
 function editMeal(event) {
     //console.log(event);
-    //GET
+    //GET user and current meal
     let index = $(event.currentTarget).attr('index');
     $('main').empty();
     $('main').append(
@@ -108,9 +108,21 @@ function editMeal(event) {
         `);
 }
 
-function saveMeal(event) {
+function addMeal(event) {
+    //console.log(event);
+    //GET user
+    $('main').empty();
+    $('main').append(
+        `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
+        <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine"></input>
+        <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes"></input>
+        <button class="save">Save meal</button>
+        <button class="cancel-edit">Cancel edit</button>
+        `);
+}
 
-    //POST new meal or save edit to old meal
+function saveMeal(event) {
     let newDishName = $("input[name='meal-name']").val();
     let newCuisine = $("input[name='cuisine']").val();
     let unformattedSideDishes = $("input[name='side-dishes']").val();
@@ -123,19 +135,24 @@ function saveMeal(event) {
         "cuisine": newCuisine,
     };
     if ($("input[name='meal-name']").attr('meal-id')) {
-        //PUT
+        //PUT edited items into old meal
         let id = $("input[name='meal-name']").attr('meal-id');
         let indexOfItem;
         for (let index in MOCK_MEAL_INFO.meals) {
             if (MOCK_MEAL_INFO.meals[index].id === id) {
+
                 indexOfItem = index;
             }
+
         }
         MOCK_MEAL_INFO.meals[indexOfItem].dishName = newMealData.dishName;
         MOCK_MEAL_INFO.meals[indexOfItem].sideDish = newMealData.sideDish;
         MOCK_MEAL_INFO.meals[indexOfItem].cuisine = newMealData.cuisine;
     } else {
-        //POST
+        //POST new meal
+        let id = (MOCK_MEAL_INFO.meals.length + 1);
+        newMealData.id = id.toString();
+        MOCK_MEAL_INFO.meals.push(newMealData);
     }
 
     getAndDisplayMeals();
@@ -182,4 +199,5 @@ $(function () {
     $("main").on("click", ".edit-meal", editMeal);
     $("main").on("click", ".cancel-edit", getAndDisplayMeals);
     $("main").on("click", ".save", saveMeal);
+    $("main").on("click", ".add-meal", addMeal);
 });
