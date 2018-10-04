@@ -248,7 +248,6 @@ function getRandomMeal() {
 }
 
 $(function () {
-    $(document.body).append(form);
     logInScreen();
     $("main").on("click", ".log-in", logInSequence);
     $("main").on("click", ".create-user", createUser);
