@@ -71,7 +71,8 @@ function displayListOfMeals(data) {
             ${data.meals[index].dishImage ? `<img alt="A picture of this meal" class="dish-image" src=${data.meals[index].dishImage} />` : ''}
             <p>Cuisine: ${data.meals[index].cuisine}</p>
             ${renderSideDishes(data.meals[index].sideDish)}
-            <button class="edit-meal" id="edit-meal-${index}" index=${index} >Edit this meal</button>
+            <button class="edit-meal" id="edit-meal-${index}" index=${index} >Edit</button>
+            <button class="delete-meal" id="delete-meal-${index}" index=${index} >Delete</button>
             `);
     }
     $('main').append(
@@ -158,6 +159,13 @@ function saveMeal(event) {
     getAndDisplayMeals();
 }
 
+function deleteMeal() {
+    // DELETE meal
+    let index = $(this).attr('index');
+    MOCK_MEAL_INFO.meals.splice(index, 1);
+    getAndDisplayMeals();
+}
+
 // this function can stay the same even when we
 // are connecting to real API
 function getAndDisplayMeals() {
@@ -200,4 +208,5 @@ $(function () {
     $("main").on("click", ".cancel-edit", getAndDisplayMeals);
     $("main").on("click", ".save", saveMeal);
     $("main").on("click", ".add-meal", addMeal);
+    $("main").on("click", ".delete-meal", deleteMeal);
 });
