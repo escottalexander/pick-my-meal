@@ -43,17 +43,50 @@ function logInSequence() {
 }
 
 
-function initialLoad() {
+function logInScreen() {
     $('main').empty();
     $('main').append(
         `<h2>Please log in to see your meals</h2>
+        <form action='none'>
         <label for="username">Username</label><input type="username" name="username" value="TrialAccount"></input>
         <label for="password">Password</label><input type="password" name="password" value="TrialAccount"></input>
         <button class="log-in">Log In</button>
+        <h2>Don't have an account?</h2>
+        <button class="create-user">Register new account</button>
+        </form>
         `);
 }
 
+function logOutSequence() {
+    //unathenticate
+    logInScreen();
+}
+
+function createUser() {
+    event.preventDefault();
+    //register new user in db
+    $('main').empty();
+    $('main').append(
+        `<h2>Please register by filling out the form below</h2>
+        <form action='none'>
+        <label for="name">Name</label><input type="name" name="name" required></input>
+        <label for="username">Username</label><input type="username" name="username" required></input>
+        <label for="password">Password</label><input type="password" name="password" required></input>
+        <label for="password-again">Password Again</label><input type="password" name="password-again" required></input>
+        <button class="register">Register</button>
+        </form>
+        `);
+}
+
+function validateRegistration() {
+    event.preventDefault();
+    logInScreen();
+    //validate form entries
+    //POST /user
+}
+
 function getMeals(callbackFn) {
+    //GET meals
     setTimeout(function () {
         callbackFn(MOCK_MEAL_INFO);
     }, 100);
@@ -63,7 +96,11 @@ function getMeals(callbackFn) {
 // to real API later
 function displayListOfMeals(data) {
     $('main').empty();
-    $('main').append(`<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>`);
+    $('main').append(`
+    <h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+    <button class="log-out">Log Out</button>
+    <button class="main-menu">Main Menu</button>
+    `);
     for (let index in data.meals) {
         $('main').append(`
         <div class="meal" id="meal-${index}">
@@ -95,26 +132,32 @@ function renderSideDishes(arr) {
 }
 
 function editMeal(event) {
-    //console.log(event);
     //GET user and current meal
     let index = $(event.currentTarget).attr('index');
     $('main').empty();
     $('main').append(
         `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        <button class="log-out">Log Out</button>
+        <button class="main-menu">Main Menu</button>
+        <form action='none'>
         <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" meal-id='${MOCK_MEAL_INFO.meals[index].id}' value="${MOCK_MEAL_INFO.meals[index].dishName}"></input>
         <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" value="${MOCK_MEAL_INFO.meals[index].cuisine}"></input>
         <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes" value="${MOCK_MEAL_INFO.meals[index].sideDish.join(", ")}"></input>
         <button class="save">Save meal</button>
         <button class="cancel-edit">Cancel edit</button>
+        </form>
         `);
 }
 
 function addMeal(event) {
+    event.preventDefault();
     //console.log(event);
     //GET user
     $('main').empty();
     $('main').append(
         `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        <button class="log-out">Log Out</button>
+        <button class="main-menu">Main Menu</button>
         <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
         <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine"></input>
         <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes"></input>
@@ -124,6 +167,7 @@ function addMeal(event) {
 }
 
 function saveMeal(event) {
+    event.preventDefault();
     let newDishName = $("input[name='meal-name']").val();
     let newCuisine = $("input[name='cuisine']").val();
     let unformattedSideDishes = $("input[name='side-dishes']").val();
@@ -169,6 +213,7 @@ function deleteMeal() {
 // this function can stay the same even when we
 // are connecting to real API
 function getAndDisplayMeals() {
+    event.preventDefault();
     getMeals(displayListOfMeals);
 }
 
@@ -176,6 +221,7 @@ function displayUserMenu() {
     $('main').empty();
     $('main').append(
         `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        <button class="log-out">Log Out</button>
         <button class="random-meal">Choose a random meal!</button>
         <h3>Or</h3>
         <button class="view-meals">View my meals</button>
@@ -184,10 +230,12 @@ function displayUserMenu() {
 
 function getRandomMeal() {
     $('main').empty();
-    getMeals(function (data) {
+    getMeals((data) => {
         let randomMeal = data.meals[Math.floor(Math.random() * data.meals.length)];
         $('main').append(
             `<h2>Logged in as ${data.user.name}</h2>
+            <button class="log-out">Log Out</button>
+            <button class="main-menu">Main Menu</button>
         <h3>Your Random meal is...</h3>
         <h3 class="dish-name">${randomMeal.dishName}</h3>
                 ${randomMeal.dishImage ? `<img alt="A picture of this meal" class="dish-image" src=${randomMeal.dishImage} />` : ''}
@@ -200,8 +248,13 @@ function getRandomMeal() {
 }
 
 $(function () {
-    initialLoad();
+    $(document.body).append(form);
+    logInScreen();
     $("main").on("click", ".log-in", logInSequence);
+    $("main").on("click", ".create-user", createUser);
+    $("main").on("click", ".register", validateRegistration);
+    $("main").on("click", ".log-out", logOutSequence);
+    $("main").on("click", ".main-menu", displayUserMenu);
     $("main").on("click", ".random-meal", getRandomMeal);
     $("main").on("click", ".view-meals", getAndDisplayMeals);
     $("main").on("click", ".edit-meal", editMeal);
