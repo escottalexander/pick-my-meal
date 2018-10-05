@@ -50,9 +50,9 @@ function logInScreen() {
         <form action='none'>
         <label for="username">Username</label><input type="username" name="username" value="TrialAccount"></input>
         <label for="password">Password</label><input type="password" name="password" value="TrialAccount"></input>
-        <button class="log-in">Log In</button>
+        <button type="button" class="log-in">Log In</button>
         <h2>Don't have an account?</h2>
-        <button class="create-user">Register new account</button>
+        <button type="button" class="create-user">Register new account</button>
         </form>
         `);
 }
@@ -73,7 +73,7 @@ function createUser() {
         <label for="username">Username</label><input type="username" name="username" required></input>
         <label for="password">Password</label><input type="password" name="password" required></input>
         <label for="password-again">Password Again</label><input type="password" name="password-again" required></input>
-        <button class="register">Register</button>
+        <button type="button" class="register">Register</button>
         </form>
         `);
 }
@@ -143,7 +143,7 @@ function editMeal(event) {
         <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" meal-id='${MOCK_MEAL_INFO.meals[index].id}' value="${MOCK_MEAL_INFO.meals[index].dishName}"></input>
         <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" value="${MOCK_MEAL_INFO.meals[index].cuisine}"></input>
         <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes" value="${MOCK_MEAL_INFO.meals[index].sideDish.join(", ")}"></input>
-        <button class="save">Save meal</button>
+        <button type="button" class="save">Save meal</button>
         <button class="cancel-edit">Cancel edit</button>
         </form>
         `);
@@ -248,7 +248,6 @@ function getRandomMeal() {
 }
 
 $(function () {
-    $(document.body).append(form);
     logInScreen();
     $("main").on("click", ".log-in", logInSequence);
     $("main").on("click", ".create-user", createUser);
