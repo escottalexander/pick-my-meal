@@ -22,7 +22,7 @@ router.get('/', isLoggedIn, (req, res) => {
             userId: req.user._id
         })
         .then(meals => {
-            res.json({
+            res.status(200).json({
                 meals: meals.map(
                     (meal) => meal.serialize())
             });

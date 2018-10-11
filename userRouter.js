@@ -47,17 +47,21 @@ router.post("/login", passport.authenticate("local", {
     successFlash: "Welcome",
     failureRedirect: "/login"
 }), function (req, res) {
-    res.send(`User is ${req.user.username} id:${req.user.id}`);
+    res.status(200).json({
+        message: `${req.user.username}, ID:${req.user.id} is now logged in.`
+    });
 });
 
 // GET Logout
 router.get("/logout", function (req, res) {
     req.logout();
-    res.redirect("/");
+    res.status(200).json({
+        message: "User has been logged out"
+    });
 });
 
 //PUT Change username or name NOT password
-router.put('/user/:id', (req, res) => {
+router.put('/:id', (req, res) => {
 
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         const message = (
