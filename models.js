@@ -35,21 +35,18 @@ mealSchema.methods.serialize = function () {
         created: this.created
     };
 };
-
+const Meal = mongoose.model('Meal', mealSchema);
 
 const userSchema = mongoose.Schema({
     name: {
         type: String,
-        //required: true
     },
     username: {
         type: String,
-        //required: true,
         unique: true
     },
     password: {
         type: String,
-        //required: true
     },
     meals: [mealSchema],
     created: {
@@ -64,7 +61,6 @@ userSchema.methods.serialize = function () {
         id: this._id || '',
         name: this.name || '',
         username: this.username || '',
-        meals: this.meals || '',
         created: this.created || ''
     };
 };
@@ -72,7 +68,6 @@ userSchema.methods.serialize = function () {
 userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
-const Meal = mongoose.model('Meal', mealSchema);
 
 module.exports = {
     Meal,
