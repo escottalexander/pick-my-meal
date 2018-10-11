@@ -1,11 +1,16 @@
 'use strict';
 
 const mongoose = require('mongoose');
+var passportLocalMongoose = require("passport-local-mongoose");
 
 mongoose.Promise = global.Promise;
 
 
 const mealSchema = mongoose.Schema({
+    userId: {
+        type: String,
+        required: true
+    },
     mealName: {
         type: String,
         required: true
@@ -23,6 +28,7 @@ const mealSchema = mongoose.Schema({
 mealSchema.methods.serialize = function () {
     return {
         id: this._id,
+        userId: this.UserId,
         mealName: this.mealName,
         cuisine: this.cuisine,
         sideDish: this.sideDish,
@@ -34,16 +40,16 @@ mealSchema.methods.serialize = function () {
 const userSchema = mongoose.Schema({
     name: {
         type: String,
-        required: true
+        //required: true
     },
     username: {
         type: String,
-        required: true,
+        //required: true,
         unique: true
     },
     password: {
         type: String,
-        required: true
+        //required: true
     },
     meals: [mealSchema],
     created: {
@@ -62,6 +68,8 @@ userSchema.methods.serialize = function () {
         created: this.created || ''
     };
 };
+
+userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
 const Meal = mongoose.model('Meal', mealSchema);
