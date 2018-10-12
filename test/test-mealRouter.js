@@ -17,24 +17,40 @@ const {
 // http://chaijs.com/api/bdd/
 const expect = chai.expect;
 
-const newUser = {
+const user = {
     name: "John Doe",
     username: "JohnDoe91",
     password: "password1"
 };
+
+const newMeal = {
+    "mealName": "Spaghetti",
+    "cuisine": "Italian",
+    "sideDish": ["Meatballs", "Salad", "Garlic Bread"]
+};
+
 // This let's us make HTTP requests
 // in our tests.
 // see: https://github.com/chaijs/chai-http
 chai.use(chaiHttp);
 
-describe("User Authentication Router", function () {
+describe("Meal Router", function () {
     // Before our tests run, we activate the server. Our `runServer`
     // function returns a promise, and we return the that promise by
     // doing `return runServer`. If we didn't return a promise here,
     // there's a possibility of a race condition where our tests start
     // running before our server has started.
     before(function () {
-        return runServer(TEST_DATABASE_URL);
+        return runServer(TEST_DATABASE_URL)
+            .then(function () {
+                return chai
+                    .request(app)
+                    .post("/user/register")
+                    .send(user)
+                    .then(function (res) {
+                        expect(res).to.have.status(201);
+                    });
+            });
     });
 
     // although we only have one test module at the moment, we'll
@@ -43,7 +59,18 @@ describe("User Authentication Router", function () {
     // that starts our server, it will cause an error because the
     // server would still be running from the previous tests.
     after(function () {
-        return closeServer();
+        return (
+            chai
+            .request(app)
+            // first have to get so we have an `id` of item
+            // to delete
+            .get("/user")
+            .then(function (res) {
+                return chai.request(app).delete(`/user/${res.body.users[0].id}`);
+            }).then(function (res) {
+                return closeServer();
+            })
+        );
     });
 
     // test strategy:
@@ -57,93 +84,70 @@ describe("User Authentication Router", function () {
         // and returns a Promise, so we just return it.
         return chai
             .request(app)
-            .get("/user")
-            .then(function (res) {
-                expect(res).to.have.status(200);
-                expect(res).to.be.json;
-            });
-    });
-
-    it("should return 201 HTTP status code on new user register", function () {
-        // for Mocha tests, when we're dealing with asynchronous operations,
-        // we must either return a Promise object or else call a `done` callback
-        // at the end of the test. The `chai.request(server).get...` call is asynchronous
-        // and returns a Promise, so we just return it.
-
-        return chai
-            .request(app)
-            .post("/user/register")
-            .send(newUser)
-            .then(function (res) {
-                expect(res).to.have.status(201);
-            });
-    });
-
-    it("should return 200 HTTP status code on log out", function () {
-        // for Mocha tests, when we're dealing with asynchronous operations,
-        // we must either return a Promise object or else call a `done` callback
-        // at the end of the test. The `chai.request(server).get...` call is asynchronous
-        // and returns a Promise, so we just return it.
-
-        return chai
-            .request(app)
-            .get("/user/logout")
-            .then(function (res) {
-                expect(res).to.have.status(200);
-            });
-    });
-
-    it("should return 200 HTTP status code on log in", function () {
-        // for Mocha tests, when we're dealing with asynchronous operations,
-        // we must either return a Promise object or else call a `done` callback
-        // at the end of the test. The `chai.request(server).get...` call is asynchronous
-        // and returns a Promise, so we just return it.
-
-        return chai
-            .request(app)
             .post("/user/login")
-            .send(newUser)
+            .send(user)
+            .then(function (res) {
+                return chai
+                    .request(app)
+                    .get("/meals")
+                    .then(function (res) {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                    });
+            });
+
+    });
+
+    it("should return 200 HTTP status code on GET", function () {
+        // for Mocha tests, when we're dealing with asynchronous operations,
+        // we must either return a Promise object or else call a `done` callback
+        // at the end of the test. The `chai.request(server).get...` call is asynchronous
+        // and returns a Promise, so we just return it.
+
+        return chai
+            .request(app)
+            .post("/meals")
+            .send(newMeal)
             .then(function (res) {
                 expect(res).to.have.status(200);
             });
     });
 
-    it("should return 204 HTTP status code on PUT and user object should be updated", function () {
+    it("should return 204 HTTP status code on PUT and meal object should be updated", function () {
         // for Mocha tests, when we're dealing with asynchronous operations,
         // we must either return a Promise object or else call a `done` callback
         // at the end of the test. The `chai.request(server).get...` call is asynchronous
         // and returns a Promise, so we just return it.
-        newUser.name = "Joseph Smith";
-        delete newUser.password;
+        newMeal.mealName = "Ravioli";
         return chai
             .request(app)
-            .get("/user")
+            .get("/meals")
             .then(function (res) {
-                newUser.id = res.body.users[0].id;
+                newMeal.id = res.body.meals[0].id;
                 return chai.request(app)
-                    .put(`/user/${res.body.users[0].id}`)
-                    .send(newUser)
+                    .put(`/meals/${res.body.meals[0].id}`)
+                    .send(newMeal)
                     .then(function (res) {
                         expect(res).to.have.status(204);
                         return chai
                             .request(app)
-                            .get("/user")
+                            .get("/meals")
                             .then(function (res) {
-                                expect(res.body.users[0].name).to.equal("Joseph Smith");
+                                expect(res.body.meals[0].mealName).to.equal("Ravioli");
                             });
                     });
             });
     });
 
-    it("should delete users on DELETE", function () {
+    it("should delete meals on DELETE", function () {
         return (
             chai
             .request(app)
             // first have to get so we have an `id` of item
             // to delete
-            .get("/user")
+            .get("/meals")
             .then(function (res) {
-                return chai.request(app).delete(`/user/${res.body.users[0].id}`);
+                return chai.request(app).delete(`/meals/${res.body.meals[0].id}`);
             })
             .then(function (res) {
                 expect(res).to.have.status(204);

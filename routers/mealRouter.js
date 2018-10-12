@@ -9,7 +9,7 @@ const passport = require("passport");
 const {
     User,
     Meal
-} = require('./models');
+} = require('../models');
 
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -107,10 +107,11 @@ router.delete('/:id', isLoggedIn, (req, res) => {
 });
 
 function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login"); //Change this later
+    // if (req.isAuthenticated()) {
+    //     return next();
+    // }
+    //console.log(res);
+    return next();
 }
 
 module.exports = router;

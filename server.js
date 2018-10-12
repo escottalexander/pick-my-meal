@@ -18,8 +18,8 @@ const {
 //     Meal
 // } = require('./models');
 
-const userRouter = require("./userRouter");
-const mealRouter = require("./mealRouter");
+const userRouter = require("./routers/userRouter");
+const mealRouter = require("./routers/mealRouter");
 
 const app = express();
 

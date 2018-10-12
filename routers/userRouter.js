@@ -8,7 +8,7 @@ const passport = require("passport");
 
 const {
     User
-} = require('./models');
+} = require('../models');
 
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
