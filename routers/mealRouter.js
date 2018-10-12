@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const LocalStrategy = require("passport-local");
-const flash = require("connect-flash");
 const passportLocalMongoose = require("passport-local-mongoose");
-//mongoose.Promise = global.Promise;
 const passport = require("passport");
 
 const {
@@ -38,7 +36,6 @@ router.get('/', isLoggedIn, (req, res) => {
 
 //POST Add a meal
 router.post('/', isLoggedIn, (req, res) => {
-    console.log(req.body);
     const requiredFields = ['mealName'];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
@@ -71,7 +68,7 @@ router.put('/:id', isLoggedIn, (req, res) => {
             `Request path id (${req.params.id}) and request body id ` +
             `(${req.body.id}) must match`);
         console.error(message);
-        // we return here to break out of this function
+        //we return here to break out of this function
         return res.status(400).json({
             message: message
         });
@@ -110,7 +107,6 @@ function isLoggedIn(req, res, next) {
     // if (req.isAuthenticated()) {
     //     return next();
     // }
-    //console.log(res);
     return next();
 }
 

@@ -3,7 +3,6 @@ const router = express.Router();
 const LocalStrategy = require("passport-local");
 const flash = require("connect-flash");
 const passportLocalMongoose = require("passport-local-mongoose");
-//mongoose.Promise = global.Promise;
 const passport = require("passport");
 
 const {
@@ -112,6 +111,7 @@ router.delete('/:id', (req, res) => {
 ///DEV ONLY ROUTES
 //GET User for development only
 router.get('/', (req, res) => {
+    //console.log(req)
     const filters = {};
     const queryableFields = ['cuisine'];
     queryableFields.forEach(field => {

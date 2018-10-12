@@ -35,6 +35,7 @@ mealSchema.methods.serialize = function () {
         created: this.created
     };
 };
+
 const Meal = mongoose.model('Meal', mealSchema);
 
 const userSchema = mongoose.Schema({
