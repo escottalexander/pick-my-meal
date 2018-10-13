@@ -1,0 +1,13 @@
+.msg-handler {
+    margin: 10px 0;
+    position: static;
+    text-align: center;
+    background-color: #EEECEF;
+    color: red;
+    border: 5px solid #326892;
+    border-radius: 5px;
+}
+
+.hidden {
+    display: none;
+}

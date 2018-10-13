@@ -1,45 +1,89 @@
 const MOCK_MEAL_INFO = {
-    "user": {
-        "name": "Trial User",
-    },
     "meals": [{
-            "id": "1111111",
-            "dishName": "Eggplant Parmesan",
-            "sideDish": ["Asparagus"],
-            "cuisine": "Italian",
-            "dishImage": null,
-            "publishedAt": 1470016976609
+            "id": "5bc2302f7212604488ad31c7",
+            "username": "TrialAccount",
+            "mealName": "Baked Chicken",
+            "cuisine": "",
+            "sideDish": [
+                "Potatoes",
+                "Carrots",
+                "Celery"
+            ],
+            "created": "2018-10-13T17:49:35.095Z"
         },
         {
-            "id": "2222222",
-            "dishName": "Spaghetti with Meatballs",
-            "sideDish": ["Garlic Bread", "Salad"],
+            "id": "5bc230637212604488ad31c8",
+            "username": "TrialAccount",
+            "mealName": "Eggplant Parmesan",
             "cuisine": "Italian",
-            "dishImage": null,
-            "publishedAt": 1470012976609
+            "sideDish": [
+                "Asparagus"
+            ],
+            "created": "2018-10-13T17:50:27.106Z"
         },
         {
-            "id": "333333",
-            "dishName": "Enchiladas",
-            "sideDish": ["Chips", "Salsa", "Queso"],
+            "id": "5bc230817212604488ad31c9",
+            "username": "TrialAccount",
+            "mealName": "Spaghetti with Meatballs",
+            "cuisine": "Italian",
+            "sideDish": [
+                "Garlic Bread",
+                "Salad"
+            ],
+            "created": "2018-10-13T17:50:57.635Z"
+        },
+        {
+            "id": "5bc2309d7212604488ad31ca",
+            "username": "TrialAccount",
+            "mealName": "Enchiladas",
             "cuisine": "Mexican",
-            "dishImage": null,
-            "publishedAt": 1470011976609
+            "sideDish": [
+                "Chips",
+                "Salsa",
+                "Queso"
+            ],
+            "created": "2018-10-13T17:51:25.776Z"
         },
         {
-            "id": "4444444",
-            "dishName": "Cheeseburgers",
-            "sideDish": ["French Fries", "Chili"],
+            "id": "5bc230c07212604488ad31cb",
+            "username": "TrialAccount",
+            "mealName": "Cheeseburgers",
             "cuisine": "American",
-            "dishImage": null,
-            "publishedAt": 1470009976609
+            "sideDish": [
+                "French Fries",
+                "Chili"
+            ],
+            "created": "2018-10-13T17:52:00.496Z"
         }
     ]
-};
+}
 
 function logInSequence() {
-    //authenticate
-    displayUserMenu();
+    event.preventDefault();
+    let username = $("input[name='username']").val();
+    let password = $("input[name='password']").val();
+
+    let userObject = {
+        name,
+        username,
+        password
+    };
+
+    $.ajax({
+            type: 'POST',
+            url: '/auth/login',
+            dataType: 'json',
+            data: JSON.stringify(userObject),
+            contentType: 'application/json'
+        })
+        .done(token => {
+            localStorage.setItem('authToken', token.authToken);
+            localStorage.setItem('user', JSON.stringify(token.user));
+            displayUserMenu();
+        })
+        .fail((err) => {
+            console.error(err);
+        });
 }
 
 
@@ -58,7 +102,8 @@ function logInScreen() {
 }
 
 function logOutSequence() {
-    //unathenticate
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
     logInScreen();
 }
 
@@ -68,6 +113,7 @@ function createUser() {
     $('main').empty();
     $('main').append(
         `<h2>Please register by filling out the form below</h2>
+        <div class="msg-handler hidden" aria-live="assertive"></div>
         <form action='none'>
         <label for="name">Name</label><input type="name" name="name" required></input>
         <label for="username">Username</label><input type="username" name="username" required></input>
@@ -80,36 +126,158 @@ function createUser() {
 
 function validateRegistration() {
     event.preventDefault();
-    logInScreen();
-    //validate form entries
-    //POST /user
+    let name = $("input[name='name']").val();
+    let username = $("input[name='username']").val();
+    let password = $("input[name='password']").val();
+    let passwordAgain = $("input[name='password-again']").val();
+
+    let userObject = {
+        name,
+        username,
+        password
+    };
+
+    if (password !== passwordAgain) {
+        clientErrorHandler("Passwords must match");
+    } else if (password.length < 10) {
+        clientErrorHandler("Password must be at least ten characters");
+    } else {
+        $.ajax({
+                type: 'POST',
+                url: '/user/register',
+                dataType: 'json',
+                data: JSON.stringify(userObject),
+                contentType: 'application/json'
+            })
+            .done(() => {
+                console.log('registered successfully');
+                logInScreen();
+            })
+            .fail((err) => {
+                if (err.code === 406) {
+                    clientErrorHandler("Please choose a different username");
+                } else {
+                    console.error(err);
+                }
+            });
+
+    }
+}
+
+function clientErrorHandler(msg) {
+    $(".msg-handler").html(`
+<h2>${msg}</h2>
+`).slideDown(500, () => $(".msg-handler").delay(6000).slideUp(500));
 }
 
 function getMeals(callbackFn) {
-    //GET meals
-    setTimeout(function () {
-        callbackFn(MOCK_MEAL_INFO);
-    }, 100);
+    let token = localStorage.getItem('authToken');
+
+    $.ajax({
+            type: 'GET',
+            url: `/meals`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            dataType: 'json',
+            contentType: 'application/json',
+        })
+        .done(data => {
+            localStorage.setItem('mealData', JSON.stringify(data));
+            callbackFn(data);
+        })
+        .fail(err => {
+            console.error(err);
+        });
+}
+
+function postMeal(meal) {
+    let token = localStorage.getItem('authToken');
+
+    $.ajax({
+            type: 'POST',
+            url: `/meals`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            data: JSON.stringify(meal),
+            dataType: 'json',
+            contentType: 'application/json',
+        })
+        .done(() => {
+            getAndDisplayMeals();
+        })
+        .fail(err => {
+            console.error(err);
+        });
+}
+
+function putMeal(meal) {
+    let id = $("input[name='meal-name']").attr('meal-id');
+    meal.id = id;
+
+    let token = localStorage.getItem('authToken');
+
+    $.ajax({
+            type: 'PUT',
+            url: `/meals/${id}`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            data: JSON.stringify(meal),
+            dataType: 'json',
+            contentType: 'application/json',
+        })
+        .done(() => {
+            getAndDisplayMeals();
+        })
+        .fail(err => {
+            console.error(err);
+        });
+}
+
+function deleteMeal(meal) {
+    let id = $(this).attr('mealId');
+
+    let token = localStorage.getItem('authToken');
+
+    $.ajax({
+            type: 'DELETE',
+            url: `/meals/${id}`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            dataType: 'json',
+            contentType: 'application/json',
+        })
+        .done(() => {
+            getAndDisplayMeals();
+        })
+        .fail(err => {
+            console.error(err);
+        });
 }
 
 // this function stays the same when we connect
 // to real API later
 function displayListOfMeals(data) {
+    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
     $('main').append(`
-    <h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+    <h2>Logged in as ${user.name}</h2>
     <button class="log-out">Log Out</button>
     <button class="main-menu">Main Menu</button>
     `);
     for (let index in data.meals) {
         $('main').append(`
         <div class="meal" id="meal-${index}">
-        <h3 class="dish-name">${data.meals[index].dishName}</h3>
-            ${data.meals[index].dishImage ? `<img alt="A picture of this meal" class="dish-image" src=${data.meals[index].dishImage} />` : ''}
-            <p>Cuisine: ${data.meals[index].cuisine}</p>
+        <h3 class="dish-name">${data.meals[index].mealName}</h3>
+            ${data.meals[index].mealImage ? `<img alt="A picture of this meal" class="meal-image" src=${data.meals[index].mealImage} />` : ''}
+            ${data.meals[index].cuisine !== '' ? `<p>Cuisine: ${data.meals[index].cuisine}</p>` : ''}
             ${renderSideDishes(data.meals[index].sideDish)}
             <button class="edit-meal" id="edit-meal-${index}" index=${index} >Edit</button>
-            <button class="delete-meal" id="delete-meal-${index}" index=${index} >Delete</button>
+            <button class="delete-meal" id="delete-meal-${index}" mealId=${data.meals[index].id} >Delete</button>
+            </div>
             `);
     }
     $('main').append(
@@ -120,7 +288,7 @@ function displayListOfMeals(data) {
 }
 
 function renderSideDishes(arr) {
-    if (arr) {
+    if (arr[0] !== '') {
         let allSides = [];
         allSides.push('<p>Served with:</p><ul class="sides">');
         for (let index in arr) {
@@ -128,21 +296,26 @@ function renderSideDishes(arr) {
         }
         allSides.push('</ul>');
         return allSides.join('');
+    } else {
+        return '';
     }
 }
 
 function editMeal(event) {
+    let user = JSON.parse(localStorage.getItem('user'));
     //GET user and current meal
+    let data = JSON.parse(localStorage.getItem('mealData'));
+
     let index = $(event.currentTarget).attr('index');
     $('main').empty();
     $('main').append(
-        `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        `<h2>Logged in as ${user.name}</h2>
         <button class="log-out">Log Out</button>
         <button class="main-menu">Main Menu</button>
         <form action='none'>
-        <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" meal-id='${MOCK_MEAL_INFO.meals[index].id}' value="${MOCK_MEAL_INFO.meals[index].dishName}"></input>
-        <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" value="${MOCK_MEAL_INFO.meals[index].cuisine}"></input>
-        <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes" value="${MOCK_MEAL_INFO.meals[index].sideDish.join(", ")}"></input>
+        <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" meal-id='${data.meals[index].id}' value="${data.meals[index].mealName}"></input>
+        <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" value="${data.meals[index].cuisine}"></input>
+        <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes" value="${data.meals[index].sideDish.join(", ")}"></input>
         <button type="button" class="save">Save meal</button>
         <button class="cancel-edit">Cancel edit</button>
         </form>
@@ -151,11 +324,10 @@ function editMeal(event) {
 
 function addMeal(event) {
     event.preventDefault();
-    //console.log(event);
-    //GET user
+    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
     $('main').append(
-        `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        `<h2>Logged in as ${user.name}</h2>
         <button class="log-out">Log Out</button>
         <button class="main-menu">Main Menu</button>
         <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
@@ -167,60 +339,39 @@ function addMeal(event) {
 }
 
 function saveMeal(event) {
+    let user = JSON.parse(localStorage.getItem('user'));
     event.preventDefault();
-    let newDishName = $("input[name='meal-name']").val();
+    let newMealName = $("input[name='meal-name']").val();
     let newCuisine = $("input[name='cuisine']").val();
     let unformattedSideDishes = $("input[name='side-dishes']").val();
     let sideDishes = unformattedSideDishes.split(",").map(element => {
         return $.trim(element);
     });
     const newMealData = {
-        "dishName": newDishName,
-        "sideDish": sideDishes,
-        "cuisine": newCuisine,
+        username: user.username,
+        mealName: newMealName,
+        sideDish: sideDishes,
+        cuisine: newCuisine,
     };
     if ($("input[name='meal-name']").attr('meal-id')) {
         //PUT edited items into old meal
-        let id = $("input[name='meal-name']").attr('meal-id');
-        let indexOfItem;
-        for (let index in MOCK_MEAL_INFO.meals) {
-            if (MOCK_MEAL_INFO.meals[index].id === id) {
-
-                indexOfItem = index;
-            }
-
-        }
-        MOCK_MEAL_INFO.meals[indexOfItem].dishName = newMealData.dishName;
-        MOCK_MEAL_INFO.meals[indexOfItem].sideDish = newMealData.sideDish;
-        MOCK_MEAL_INFO.meals[indexOfItem].cuisine = newMealData.cuisine;
+        putMeal(newMealData);
     } else {
         //POST new meal
-        let id = (MOCK_MEAL_INFO.meals.length + 1);
-        newMealData.id = id.toString();
-        MOCK_MEAL_INFO.meals.push(newMealData);
+        postMeal(newMealData);
     }
-
-    getAndDisplayMeals();
 }
 
-function deleteMeal() {
-    // DELETE meal
-    let index = $(this).attr('index');
-    MOCK_MEAL_INFO.meals.splice(index, 1);
-    getAndDisplayMeals();
-}
-
-// this function can stay the same even when we
-// are connecting to real API
 function getAndDisplayMeals() {
     event.preventDefault();
     getMeals(displayListOfMeals);
 }
 
 function displayUserMenu() {
+    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
     $('main').append(
-        `<h2>Logged in as ${MOCK_MEAL_INFO.user.name}</h2>
+        `<h2>Logged in as ${user.name}</h2>
         <button class="log-out">Log Out</button>
         <button class="random-meal">Choose a random meal!</button>
         <h3>Or</h3>
@@ -229,17 +380,18 @@ function displayUserMenu() {
 }
 
 function getRandomMeal() {
+    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
     getMeals((data) => {
         let randomMeal = data.meals[Math.floor(Math.random() * data.meals.length)];
         $('main').append(
-            `<h2>Logged in as ${data.user.name}</h2>
+            `<h2>Logged in as ${user.name}</h2>
             <button class="log-out">Log Out</button>
             <button class="main-menu">Main Menu</button>
         <h3>Your Random meal is...</h3>
-        <h3 class="dish-name">${randomMeal.dishName}</h3>
-                ${randomMeal.dishImage ? `<img alt="A picture of this meal" class="dish-image" src=${randomMeal.dishImage} />` : ''}
-                <p>Cuisine: ${randomMeal.cuisine}</p>
+        <h3 class="meal-name">${randomMeal.mealName}</h3>
+                ${randomMeal.mealImage ? `<img alt="A picture of this meal" class="meal-image" src=${randomMeal.mealImage} />` : ''}
+                ${randomMeal.cuisine !== '' ? `<p>Cuisine: ${randomMeal.cuisine}</p>` : ''}
                 ${renderSideDishes(randomMeal.sideDish)}
         <button class="random-meal">Try again</button>   
         <button class="view-meals">View all meals</button>

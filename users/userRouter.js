@@ -103,7 +103,7 @@ router.post("/register", jsonParser, function (req, res) {
             if (count > 0) {
                 // There is an existing user with the same username
                 return Promise.reject({
-                    code: 422,
+                    code: 406,
                     reason: 'ValidationError',
                     message: 'Username already taken',
                     location: 'username'
