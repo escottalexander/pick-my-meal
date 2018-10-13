@@ -3,9 +3,12 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const passport = require("passport");
 const bodyParser = require("body-parser");
-const LocalStrategy = require("passport-local");
-const flash = require("connect-flash");
-const passportLocalMongoose = require("passport-local-mongoose");
+
+const {
+    router: authRouter,
+    localStrategy,
+    jwtStrategy
+} = require('./auth');
 mongoose.Promise = global.Promise;
 
 const {
@@ -13,37 +16,48 @@ const {
     PORT
 } = require('./config');
 
-// const {
-//     User,
-//     Meal
-// } = require('./models');
-
-const userRouter = require("./userRouter");
-const mealRouter = require("./mealRouter");
+const userRouter = require("./users/userRouter");
+const mealRouter = require("./users/mealRouter");
 
 const app = express();
+
+app.use(morgan('common'));
+
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
+    if (req.method === 'OPTIONS') {
+        return res.send(204);
+    }
+    next();
+});
 
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(express.json());
-app.use(require("express-session")({
-    secret: "Rusty is the best og in the world",
-    resave: false,
-    saveUninitialized: false
-}));
 
-app.use(flash());
-app.use(passport.initialize());
-app.use(passport.session());
-// passport.use(new LocalStrategy(User.authenticate()));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-app.use(morgan('common'));
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
 app.use(express.static('public'));
 
+const jwtAuth = passport.authenticate('jwt', {
+    session: false
+});
+
 app.use("/user", userRouter);
-app.use("/meals", mealRouter);
+app.use("/auth", authRouter);
+app.use("/meals", jwtAuth, mealRouter);
+
+
+app.use('*', (req, res) => {
+    return res.status(404).json({
+        message: 'Not Found'
+    });
+});
+
 
 let server;
 
