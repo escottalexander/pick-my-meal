@@ -1,10 +1,11 @@
+'use strict'
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 
 const {
     TEST_DATABASE_URL,
     PORT
-} = require('../config');
+} = require("../config");
 
 const {
     app,
@@ -12,9 +13,11 @@ const {
     closeServer
 } = require("../server");
 
-// this lets us use *expect* style syntax in our tests
-// so we can do things like `expect(1 + 1).to.equal(2);`
-// http://chaijs.com/api/bdd/
+const {
+    User,
+    Meal
+} = require("../users");
+
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -33,37 +36,22 @@ const newMeal = {
 
 
 
-describe("Meal Router", function () {
+describe("Meal endpoints", function () {
     // Before starting tests, start the server and register a   
     // new user who will be used by chai to complete tests
     before(function () {
-        return runServer(TEST_DATABASE_URL)
-            .then(function () {
-                return chai
-                    .request(app)
-                    .post("/user/register")
-                    .send(user)
-                    .then(function (res) {
-                        expect(res).to.have.status(201);
-                    });
-            });
+        return runServer(TEST_DATABASE_URL);
     });
 
 
     // After all the tests, Delete user from database and close server
     after(function () {
-        return (
-            chai
-            .request(app)
-            .get("/user")
-            .then(function (res) {
-                return chai.request(app).delete(`/user/${res.body.users[0].id}`);
-            }).then(function (res) {
-                return closeServer();
-            })
-        );
+        return closeServer();
     });
 
+    this.afterEach(function () {
+        return User.remove({});
+    });
 
     it("should return 200 HTTP status code on GET", function () {
 

@@ -1,7 +1,7 @@
 'use strict';
-
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-var passportLocalMongoose = require("passport-local-mongoose");
+//var passportLocalMongoose = require("passport-local-mongoose");
 
 mongoose.Promise = global.Promise;
 
@@ -41,13 +41,16 @@ const Meal = mongoose.model('Meal', mealSchema);
 const userSchema = mongoose.Schema({
     name: {
         type: String,
+        required: true
     },
     username: {
         type: String,
+        required: true,
         unique: true
     },
     password: {
         type: String,
+        required: true
     },
     meals: [mealSchema],
     created: {
@@ -59,14 +62,20 @@ const userSchema = mongoose.Schema({
 
 userSchema.methods.serialize = function () {
     return {
-        id: this._id || '',
+        userId: this._id || '',
         name: this.name || '',
         username: this.username || '',
         created: this.created || ''
     };
 };
 
-userSchema.plugin(passportLocalMongoose);
+userSchema.methods.validatePassword = function (password) {
+    return bcrypt.compare(password, this.password);
+};
+
+userSchema.statics.hashPassword = function (password) {
+    return bcrypt.hash(password, 10);
+};
 
 const User = mongoose.model('User', userSchema);
 

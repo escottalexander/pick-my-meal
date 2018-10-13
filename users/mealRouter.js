@@ -1,23 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const LocalStrategy = require("passport-local");
-const passportLocalMongoose = require("passport-local-mongoose");
-const passport = require("passport");
 
 const {
-    User,
     Meal
-} = require('../models');
-
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+} = require('./models');
 
 //GET Pull up users meals
-router.get('/', isLoggedIn, (req, res) => {
+router.get('/', (req, res) => {
     Meal
         .find({
-            userId: req.user._id
+            userId: req.user.userId
         })
         .then(meals => {
             res.status(200).json({
@@ -35,7 +27,7 @@ router.get('/', isLoggedIn, (req, res) => {
 });
 
 //POST Add a meal
-router.post('/', isLoggedIn, (req, res) => {
+router.post('/', (req, res) => {
     const requiredFields = ['mealName'];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
@@ -46,7 +38,7 @@ router.post('/', isLoggedIn, (req, res) => {
         }
     }
     Meal.create({
-            userId: req.user._id,
+            userId: req.user.userId,
             mealName: req.body.mealName,
             cuisine: req.body.cuisine,
             sideDish: req.body.sideDish
@@ -62,7 +54,7 @@ router.post('/', isLoggedIn, (req, res) => {
 });
 
 //PUT edit meal
-router.put('/:id', isLoggedIn, (req, res) => {
+router.put('/:id', (req, res) => {
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         const message = (
             `Request path id (${req.params.id}) and request body id ` +
@@ -94,7 +86,7 @@ router.put('/:id', isLoggedIn, (req, res) => {
 });
 
 //DELETE meal
-router.delete('/:id', isLoggedIn, (req, res) => {
+router.delete('/:id', (req, res) => {
     Meal
         .findByIdAndRemove(req.params.id)
         .then(() => res.status(204).end())
@@ -103,11 +95,5 @@ router.delete('/:id', isLoggedIn, (req, res) => {
         }));
 });
 
-function isLoggedIn(req, res, next) {
-    // if (req.isAuthenticated()) {
-    //     return next();
-    // }
-    return next();
-}
 
 module.exports = router;
