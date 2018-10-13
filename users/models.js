@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 
 
 const mealSchema = mongoose.Schema({
-    userId: {
+    username: {
         type: String,
         required: true
     },
@@ -28,7 +28,7 @@ const mealSchema = mongoose.Schema({
 mealSchema.methods.serialize = function () {
     return {
         id: this._id,
-        userId: this.UserId,
+        username: this.username,
         mealName: this.mealName,
         cuisine: this.cuisine,
         sideDish: this.sideDish,
@@ -62,7 +62,7 @@ const userSchema = mongoose.Schema({
 
 userSchema.methods.serialize = function () {
     return {
-        userId: this._id || '',
+        id: this._id || '',
         name: this.name || '',
         username: this.username || '',
         created: this.created || ''

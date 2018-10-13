@@ -145,9 +145,9 @@ describe("User endpoints", function () {
             .get("/user")
             .set('authorization', `Bearer ${token}`)
             .then(function (res) {
-                newUser2.id = res.body.users[0].userId;
+                newUser2.id = res.body.users[0].id;
                 return chai.request(app)
-                    .put(`/user/${res.body.users[0].userId}`)
+                    .put(`/user/${res.body.users[0].id}`)
                     .send(newUser2)
                     .then(function (res) {
                         expect(res).to.have.status(204);
@@ -182,7 +182,7 @@ describe("User endpoints", function () {
             .get("/user")
             .set('authorization', `Bearer ${token}`)
             .then(function (res) {
-                return chai.request(app).delete(`/user/${res.body.users[0].userId}`);
+                return chai.request(app).delete(`/user/${res.body.users[0].id}`);
             })
             .then(function (res) {
                 expect(res).to.have.status(204);

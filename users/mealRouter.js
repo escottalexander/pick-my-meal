@@ -9,7 +9,7 @@ const {
 router.get('/', (req, res) => {
     Meal
         .find({
-            userId: req.user.userId
+            username: req.user.username
         })
         .then(meals => {
             res.status(200).json({
@@ -38,7 +38,7 @@ router.post('/', (req, res) => {
         }
     }
     Meal.create({
-            userId: req.user.userId,
+            username: req.body.username,
             mealName: req.body.mealName,
             cuisine: req.body.cuisine,
             sideDish: req.body.sideDish

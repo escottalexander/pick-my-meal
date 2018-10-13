@@ -135,7 +135,7 @@ router.post("/register", jsonParser, function (req, res) {
         });
 });
 
-//PUT Change username or name NOT password
+//PUT Change name NOT username or password
 router.put('/:id', (req, res) => {
 
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
@@ -155,7 +155,7 @@ router.put('/:id', (req, res) => {
     }
 
     const toUpdate = {};
-    const updateableFields = ['name', 'username'];
+    const updateableFields = ['name'];
 
     updateableFields.forEach(field => {
         if (field in req.body) {
@@ -185,8 +185,6 @@ router.delete('/:id', (req, res) => {
         }));
 });
 
-
-///DEV ONLY ROUTES TO BE ERASED IN PRODUCTION MODEL
 //GET User for development only
 router.get('/', (req, res) => {
     User
