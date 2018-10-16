@@ -1,63 +1,3 @@
-const MOCK_MEAL_INFO = {
-    "meals": [{
-            "id": "5bc2302f7212604488ad31c7",
-            "username": "TrialAccount",
-            "mealName": "Baked Chicken",
-            "cuisine": "",
-            "sideDish": [
-                "Potatoes",
-                "Carrots",
-                "Celery"
-            ],
-            "created": "2018-10-13T17:49:35.095Z"
-        },
-        {
-            "id": "5bc230637212604488ad31c8",
-            "username": "TrialAccount",
-            "mealName": "Eggplant Parmesan",
-            "cuisine": "Italian",
-            "sideDish": [
-                "Asparagus"
-            ],
-            "created": "2018-10-13T17:50:27.106Z"
-        },
-        {
-            "id": "5bc230817212604488ad31c9",
-            "username": "TrialAccount",
-            "mealName": "Spaghetti with Meatballs",
-            "cuisine": "Italian",
-            "sideDish": [
-                "Garlic Bread",
-                "Salad"
-            ],
-            "created": "2018-10-13T17:50:57.635Z"
-        },
-        {
-            "id": "5bc2309d7212604488ad31ca",
-            "username": "TrialAccount",
-            "mealName": "Enchiladas",
-            "cuisine": "Mexican",
-            "sideDish": [
-                "Chips",
-                "Salsa",
-                "Queso"
-            ],
-            "created": "2018-10-13T17:51:25.776Z"
-        },
-        {
-            "id": "5bc230c07212604488ad31cb",
-            "username": "TrialAccount",
-            "mealName": "Cheeseburgers",
-            "cuisine": "American",
-            "sideDish": [
-                "French Fries",
-                "Chili"
-            ],
-            "created": "2018-10-13T17:52:00.496Z"
-        }
-    ]
-}
-
 function logInSequence() {
     event.preventDefault();
     let username = $("input[name='username']").val();
@@ -261,12 +201,10 @@ function deleteMeal(meal) {
 // this function stays the same when we connect
 // to real API later
 function displayListOfMeals(data) {
-    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
     $('main').append(`
-    <h2>Logged in as ${user.name}</h2>
-    <button class="log-out">Log Out</button>
-    <button class="main-menu">Main Menu</button>
+    ${navBar(2)}
+    <button class="add-meal">Add a meal</button>
     `);
     for (let index in data.meals) {
         $('main').append(`
@@ -287,6 +225,22 @@ function displayListOfMeals(data) {
 
 }
 
+function navBar(howManyButtons) {
+    let user = JSON.parse(localStorage.getItem('user'));
+    const buttons = ["<button class='log-out'>Log Out</button>", "<button class='main-menu'>Main Menu</button>"];
+    let arr = [];
+    arr.push(`<nav>
+<p>Logged in as ${user.name}</p>
+<ul>`);
+    for (let index in buttons.slice(0, howManyButtons)) {
+        arr.push(`<li>${buttons[index]}</li>`);
+    }
+    arr.push(`</ul>
+</nav>`);
+    return arr.join("");
+
+}
+
 function renderSideDishes(arr) {
     if (arr[0] !== '') {
         let allSides = [];
@@ -302,16 +256,13 @@ function renderSideDishes(arr) {
 }
 
 function editMeal(event) {
-    let user = JSON.parse(localStorage.getItem('user'));
     //GET user and current meal
     let data = JSON.parse(localStorage.getItem('mealData'));
 
     let index = $(event.currentTarget).attr('index');
     $('main').empty();
-    $('main').append(
-        `<h2>Logged in as ${user.name}</h2>
-        <button class="log-out">Log Out</button>
-        <button class="main-menu">Main Menu</button>
+    $('main').append(`
+    ${navBar(2)}
         <form action='none'>
         <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" meal-id='${data.meals[index].id}' value="${data.meals[index].mealName}"></input>
         <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" value="${data.meals[index].cuisine}"></input>
@@ -324,17 +275,14 @@ function editMeal(event) {
 
 function addMeal(event) {
     event.preventDefault();
-    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
-    $('main').append(
-        `<h2>Logged in as ${user.name}</h2>
-        <button class="log-out">Log Out</button>
-        <button class="main-menu">Main Menu</button>
-        <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
-        <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine"></input>
-        <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes"></input>
-        <button class="save">Save meal</button>
-        <button class="cancel-edit">Cancel edit</button>
+    $('main').append(`
+    ${navBar(2)}
+    <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
+    <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine"></input>
+    <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes"></input>
+    <button class="save">Save meal</button>
+    <button class="cancel-edit">Cancel edit</button>
         `);
 }
 
@@ -368,31 +316,29 @@ function getAndDisplayMeals() {
 }
 
 function displayUserMenu() {
-    let user = JSON.parse(localStorage.getItem('user'));
     $('main').empty();
-    $('main').append(
-        `<h2>Logged in as ${user.name}</h2>
-        <button class="log-out">Log Out</button>
-        <button class="random-meal">Choose a random meal!</button>
-        <h3>Or</h3>
-        <button class="view-meals">View my meals</button>
+    $('main').append(`
+    ${navBar(1)}
+    <button class="random-meal">Choose a random meal!</button>
+    <h3>Or</h3>
+    <button class="view-meals">View my meals</button>
         `);
 }
 
 function getRandomMeal() {
-    let user = JSON.parse(localStorage.getItem('user'));
+
     $('main').empty();
     getMeals((data) => {
         let randomMeal = data.meals[Math.floor(Math.random() * data.meals.length)];
-        $('main').append(
-            `<h2>Logged in as ${user.name}</h2>
-            <button class="log-out">Log Out</button>
-            <button class="main-menu">Main Menu</button>
+        $('main').append(`
+        ${navBar(2)}
         <h3>Your Random meal is...</h3>
-        <h3 class="meal-name">${randomMeal.mealName}</h3>
-                ${randomMeal.mealImage ? `<img alt="A picture of this meal" class="meal-image" src=${randomMeal.mealImage} />` : ''}
+        <div class="random-meal">
+            <h3 class="meal-name">${randomMeal.mealName}</h3>
+                ${randomMeal.mealImage ? `<img alt="A picture of ${randomMeal.mealName}" class="meal-image" src=${randomMeal.mealImage} />` : ''}
                 ${randomMeal.cuisine !== '' ? `<p>Cuisine: ${randomMeal.cuisine}</p>` : ''}
                 ${renderSideDishes(randomMeal.sideDish)}
+        </div>
         <button class="random-meal">Try again</button>   
         <button class="view-meals">View all meals</button>
         `);
