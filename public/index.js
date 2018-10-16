@@ -32,8 +32,8 @@ function logInScreen() {
     $('main').append(
         `<h2>Please log in to see your meals</h2>
         <form action='none'>
-        <label for="username">Username</label><input type="username" name="username" value="TrialAccount"></input>
-        <label for="password">Password</label><input type="password" name="password" value="TrialAccount"></input>
+        <label for="username">Username</label><input id="username" type="username" name="username" value="TrialAccount"></input>
+        <label for="password">Password</label><input id="password" type="password" name="password" value="TrialAccount"></input>
         <button type="button" class="log-in">Log In</button>
         <h2>Don't have an account?</h2>
         <button type="button" class="create-user">Register new account</button>
@@ -44,6 +44,7 @@ function logInScreen() {
 function logOutSequence() {
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');
+    $('nav').detach();
     logInScreen();
 }
 
@@ -55,10 +56,10 @@ function createUser() {
         `<h2>Please register by filling out the form below</h2>
         <div class="msg-handler hidden" aria-live="assertive"></div>
         <form action='none'>
-        <label for="name">Name</label><input type="name" name="name" required></input>
-        <label for="username">Username</label><input type="username" name="username" required></input>
-        <label for="password">Password</label><input type="password" name="password" required></input>
-        <label for="password-again">Password Again</label><input type="password" name="password-again" required></input>
+        <label for="name">Name</label><input id="name" type="name" name="name" required></input>
+        <label for="username">Username</label><input id="username" type="username" name="username" required></input>
+        <label for="password">Password</label><input id="password" type="password" name="password" required></input>
+        <label for="password-again">Password Again</label><input id="password-again" type="password" name="password-again" required></input>
         <button type="button" class="register">Register</button>
         </form>
         `);
@@ -201,10 +202,9 @@ function deleteMeal(meal) {
 // this function stays the same when we connect
 // to real API later
 function displayListOfMeals(data) {
+    navBar("mealsView")
     $('main').empty();
     $('main').append(`
-    ${navBar(2)}
-    <button class="add-meal">Add a meal</button>
     `);
     for (let index in data.meals) {
         $('main').append(`
@@ -225,20 +225,16 @@ function displayListOfMeals(data) {
 
 }
 
-function navBar(howManyButtons) {
+function navBar(page) {
+    $('nav').detach();
     let user = JSON.parse(localStorage.getItem('user'));
-    const buttons = ["<button class='log-out'>Log Out</button>", "<button class='main-menu'>Main Menu</button>"];
-    let arr = [];
-    arr.push(`<nav>
+    $('body').prepend(`
+<nav>
+${page === "mainView"? "<a class='main-menu' disabled>Main Menu</a>" : "<a class='main-menu'>Main Menu</a>" }
+<a class='log-out'>Log Out</a>
 <p>Logged in as ${user.name}</p>
-<ul>`);
-    for (let index in buttons.slice(0, howManyButtons)) {
-        arr.push(`<li>${buttons[index]}</li>`);
-    }
-    arr.push(`</ul>
-</nav>`);
-    return arr.join("");
-
+</nav>
+`);
 }
 
 function renderSideDishes(arr) {
@@ -258,15 +254,14 @@ function renderSideDishes(arr) {
 function editMeal(event) {
     //GET user and current meal
     let data = JSON.parse(localStorage.getItem('mealData'));
-
     let index = $(event.currentTarget).attr('index');
+    navBar("editView");
     $('main').empty();
     $('main').append(`
-    ${navBar(2)}
         <form action='none'>
-        <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" meal-id='${data.meals[index].id}' value="${data.meals[index].mealName}"></input>
-        <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" value="${data.meals[index].cuisine}"></input>
-        <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes" value="${data.meals[index].sideDish.join(", ")}"></input>
+        <label for="meal-name">Meal Name: </label><input id="meal-name" type="meal" name="meal-name" meal-id='${data.meals[index].id}' value="${data.meals[index].mealName}"></input>
+        <label for="cuisine">Cuisine: </label><input id="cuisine" type="cuisine" name="cuisine" value="${data.meals[index].cuisine}"></input>
+        <label for="side-dishes">Side Dishes: </label><input id="side-dishes" type="side" name="side-dishes" value="${data.meals[index].sideDish.join(", ")}"></input>
         <button type="button" class="save">Save meal</button>
         <button class="cancel-edit">Cancel edit</button>
         </form>
@@ -275,9 +270,9 @@ function editMeal(event) {
 
 function addMeal(event) {
     event.preventDefault();
+    navBar("addView");
     $('main').empty();
     $('main').append(`
-    ${navBar(2)}
     <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
     <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine"></input>
     <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes"></input>
@@ -316,22 +311,21 @@ function getAndDisplayMeals() {
 }
 
 function displayUserMenu() {
+    navBar("mainView");
     $('main').empty();
     $('main').append(`
-    ${navBar(1)}
-    <button class="random-meal">Choose a random meal!</button>
+    <button class="random-meal">Choose a random meal</button>
     <h3>Or</h3>
     <button class="view-meals">View my meals</button>
         `);
 }
 
 function getRandomMeal() {
-
+    navBar("randomMealView");
     $('main').empty();
     getMeals((data) => {
         let randomMeal = data.meals[Math.floor(Math.random() * data.meals.length)];
         $('main').append(`
-        ${navBar(2)}
         <h3>Your Random meal is...</h3>
         <div class="random-meal">
             <h3 class="meal-name">${randomMeal.mealName}</h3>
@@ -350,8 +344,8 @@ $(function () {
     $("main").on("click", ".log-in", logInSequence);
     $("main").on("click", ".create-user", createUser);
     $("main").on("click", ".register", validateRegistration);
-    $("main").on("click", ".log-out", logOutSequence);
-    $("main").on("click", ".main-menu", displayUserMenu);
+    $("body").on("click", ".log-out", logOutSequence);
+    $("body").on("click", ".main-menu", displayUserMenu);
     $("main").on("click", ".random-meal", getRandomMeal);
     $("main").on("click", ".view-meals", getAndDisplayMeals);
     $("main").on("click", ".edit-meal", editMeal);
