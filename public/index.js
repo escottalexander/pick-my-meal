@@ -1,3 +1,21 @@
+//TODO
+// Organize code and add comments
+
+function logInScreen() {
+    $('main').empty();
+    $('main').append(
+        `<h2>Please log in to see your meals</h2>
+        <div class="msg-handler hidden" aria-live="assertive"></div>
+        <form action='none'>
+        <label for="username">Username</label><input id="username" type="username" name="username" value="TrialAccount"></input>
+        <label for="password">Password</label><input id="password" type="password" name="password" value="TrialAccount"></input>
+        <button type="button" class="log-in">Log In</button>
+        <h2>Don't have an account?</h2>
+        <button type="button" class="create-user">Register new account</button>
+        </form>
+        `);
+}
+
 function logInSequence() {
     event.preventDefault();
     let username = $("input[name='username']").val();
@@ -8,37 +26,31 @@ function logInSequence() {
         username,
         password
     };
+    if (username === '') {
+        clientErrorHandler("You must provide a username", "error");
+    } else if (password === '') {
+        clientErrorHandler("You must provide a password", "error");
+    } else {
+        $.ajax({
+                type: 'POST',
+                url: '/auth/login',
+                dataType: 'json',
+                data: JSON.stringify(userObject),
+                contentType: 'application/json'
+            })
+            .done(token => {
+                localStorage.setItem('authToken', token.authToken);
+                localStorage.setItem('user', JSON.stringify(token.user));
+                getMealDataForMenu();
+            })
+            .fail((err) => {
+                console.log(err);
+                if (err.status === 401) {
+                    clientErrorHandler("There is no account with those credentials. You might have typed something wrong or you may need to register a new account.", "error");
+                }
 
-    $.ajax({
-            type: 'POST',
-            url: '/auth/login',
-            dataType: 'json',
-            data: JSON.stringify(userObject),
-            contentType: 'application/json'
-        })
-        .done(token => {
-            localStorage.setItem('authToken', token.authToken);
-            localStorage.setItem('user', JSON.stringify(token.user));
-            displayUserMenu();
-        })
-        .fail((err) => {
-            console.error(err);
-        });
-}
-
-
-function logInScreen() {
-    $('main').empty();
-    $('main').append(
-        `<h2>Please log in to see your meals</h2>
-        <form action='none'>
-        <label for="username">Username</label><input id="username" type="username" name="username" value="TrialAccount"></input>
-        <label for="password">Password</label><input id="password" type="password" name="password" value="TrialAccount"></input>
-        <button type="button" class="log-in">Log In</button>
-        <h2>Don't have an account?</h2>
-        <button type="button" class="create-user">Register new account</button>
-        </form>
-        `);
+            });
+    }
 }
 
 function logOutSequence() {
@@ -50,7 +62,6 @@ function logOutSequence() {
 
 function createUser() {
     event.preventDefault();
-    //register new user in db
     $('main').empty();
     $('main').append(
         `<h2>Please register by filling out the form below</h2>
@@ -79,9 +90,9 @@ function validateRegistration() {
     };
 
     if (password !== passwordAgain) {
-        clientErrorHandler("Passwords must match");
+        clientErrorHandler("Passwords must match", "error");
     } else if (password.length < 10) {
-        clientErrorHandler("Password must be at least ten characters");
+        clientErrorHandler("Password must be at least ten characters", "error");
     } else {
         $.ajax({
                 type: 'POST',
@@ -95,8 +106,8 @@ function validateRegistration() {
                 logInScreen();
             })
             .fail((err) => {
-                if (err.code === 406) {
-                    clientErrorHandler("Please choose a different username");
+                if (err.status === 406) {
+                    clientErrorHandler("Please choose a different username", "error");
                 } else {
                     console.error(err);
                 }
@@ -105,10 +116,10 @@ function validateRegistration() {
     }
 }
 
-function clientErrorHandler(msg) {
+function clientErrorHandler(msg, type) {
     $(".msg-handler").html(`
-<h2>${msg}</h2>
-`).slideDown(500, () => $(".msg-handler").delay(6000).slideUp(500));
+<p class=${type}>${msg}</p>
+`).slideDown(500, () => $(".msg-handler"));
 }
 
 function getMeals(callbackFn) {
@@ -199,19 +210,16 @@ function deleteMeal(meal) {
         });
 }
 
-// this function stays the same when we connect
-// to real API later
 function displayListOfMeals(data) {
-    navBar("mealsView")
+    navBar("mealsView");
     $('main').empty();
-    $('main').append(`
-    `);
+    $('main').append(`<section class="meals"></section>`);
     for (let index in data.meals) {
-        $('main').append(`
+        $('.meals').append(`
         <div class="meal" id="meal-${index}">
-        <h3 class="dish-name">${data.meals[index].mealName}</h3>
+        <h2 class="meal-name">${data.meals[index].mealName}</h2>
             ${data.meals[index].mealImage ? `<img alt="A picture of this meal" class="meal-image" src=${data.meals[index].mealImage} />` : ''}
-            ${data.meals[index].cuisine !== '' ? `<p>Cuisine: ${data.meals[index].cuisine}</p>` : ''}
+            ${data.meals[index].cuisine !== '' ? `<p>Cuisine: <span class="cuisine">${data.meals[index].cuisine}</span></p>` : ''}
             ${renderSideDishes(data.meals[index].sideDish)}
             <button class="edit-meal" id="edit-meal-${index}" index=${index} >Edit</button>
             <button class="delete-meal" id="delete-meal-${index}" mealId=${data.meals[index].id} >Delete</button>
@@ -230,8 +238,8 @@ function navBar(page) {
     let user = JSON.parse(localStorage.getItem('user'));
     $('body').prepend(`
 <nav>
-${page === "mainView"? "<a class='main-menu' disabled>Main Menu</a>" : "<a class='main-menu'>Main Menu</a>" }
-<a class='log-out'>Log Out</a>
+${page === "mainView"? "<a class='selected' >Main Menu</a>" : "<a href='' class='main-menu' role='button'>Main Menu</a>" }
+<a href='' class='log-out' role='button'>Log Out</a>
 <p>Logged in as ${user.name}</p>
 </nav>
 `);
@@ -252,16 +260,16 @@ function renderSideDishes(arr) {
 }
 
 function editMeal(event) {
-    //GET user and current meal
     let data = JSON.parse(localStorage.getItem('mealData'));
     let index = $(event.currentTarget).attr('index');
     navBar("editView");
     $('main').empty();
     $('main').append(`
+    <div class="msg-handler hidden" aria-live="assertive"></div>
         <form action='none'>
         <label for="meal-name">Meal Name: </label><input id="meal-name" type="meal" name="meal-name" meal-id='${data.meals[index].id}' value="${data.meals[index].mealName}"></input>
-        <label for="cuisine">Cuisine: </label><input id="cuisine" type="cuisine" name="cuisine" value="${data.meals[index].cuisine}"></input>
-        <label for="side-dishes">Side Dishes: </label><input id="side-dishes" type="side" name="side-dishes" value="${data.meals[index].sideDish.join(", ")}"></input>
+        <label for="cuisine">Cuisine: </label><input id="cuisine" type="cuisine" name="cuisine" placeholder="Italian" value="${data.meals[index].cuisine}"></input>
+        <label for="side-dishes">Side Dishes: </label><input id="side-dishes" type="side" name="side-dishes" placeholder="Bread, Salad, Brussel Sprouts" value="${data.meals[index].sideDish.join(", ")}"></input>
         <button type="button" class="save">Save meal</button>
         <button class="cancel-edit">Cancel edit</button>
         </form>
@@ -273,11 +281,12 @@ function addMeal(event) {
     navBar("addView");
     $('main').empty();
     $('main').append(`
-    <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name"></input>
-    <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine"></input>
-    <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes"></input>
+    <div class="msg-handler hidden" aria-live="assertive"></div>
+    <label for="meal-name">Meal Name: </label><input type="meal" name="meal-name" placeholder="Lasagna"></input>
+    <label for="cuisine">Cuisine: </label><input type="cuisine" name="cuisine" placeholder="Italian"></input>
+    <label for="side-dishes">Side Dishes: </label><input type="side" name="side-dishes" placeholder="Bread, Salad, Brussel Sprouts"></input>
     <button class="save">Save meal</button>
-    <button class="cancel-edit">Cancel edit</button>
+    <button class="cancel-edit">Cancel</button>
         `);
 }
 
@@ -296,7 +305,9 @@ function saveMeal(event) {
         sideDish: sideDishes,
         cuisine: newCuisine,
     };
-    if ($("input[name='meal-name']").attr('meal-id')) {
+    if (newMealName === '') {
+        clientErrorHandler("Meals must have a name", "error");
+    } else if ($("input[name='meal-name']").attr('meal-id')) {
         //PUT edited items into old meal
         putMeal(newMealData);
     } else {
@@ -310,14 +321,31 @@ function getAndDisplayMeals() {
     getMeals(displayListOfMeals);
 }
 
-function displayUserMenu() {
+function getMealDataForMenu() {
+    event.preventDefault();
+    getMeals(displayUserMenu);
+}
+
+function displayUserMenu(res) {
+    let mealQuantity = res.meals.length;
     navBar("mainView");
     $('main').empty();
-    $('main').append(`
+    if (mealQuantity === 0) {
+        $('main').append(`
+        <div class="msg-handler hidden" aria-live="assertive"></div>
+        <button class="disabled" disabled>Choose a random meal</button>
+        <h2>Or</h2>
+        <button class="add-meal">Add Meals</button>
+            `);
+        clientErrorHandler("It looks like you don't have any meals. Click the \"Add Meals\" button to add new meals to your account", "message");
+    } else {
+        $('main').append(`
+    <div class="msg-handler hidden" aria-live="assertive"></div>
     <button class="random-meal">Choose a random meal</button>
-    <h3>Or</h3>
+    <h2>Or</h2>
     <button class="view-meals">View my meals</button>
         `);
+    }
 }
 
 function getRandomMeal() {
@@ -326,8 +354,8 @@ function getRandomMeal() {
     getMeals((data) => {
         let randomMeal = data.meals[Math.floor(Math.random() * data.meals.length)];
         $('main').append(`
-        <h3>Your Random meal is...</h3>
-        <div class="random-meal">
+        <h2>Your Random meal is...</h2>
+        <div class="random-meal-design">
             <h3 class="meal-name">${randomMeal.mealName}</h3>
                 ${randomMeal.mealImage ? `<img alt="A picture of ${randomMeal.mealName}" class="meal-image" src=${randomMeal.mealImage} />` : ''}
                 ${randomMeal.cuisine !== '' ? `<p>Cuisine: ${randomMeal.cuisine}</p>` : ''}
@@ -345,7 +373,7 @@ $(function () {
     $("main").on("click", ".create-user", createUser);
     $("main").on("click", ".register", validateRegistration);
     $("body").on("click", ".log-out", logOutSequence);
-    $("body").on("click", ".main-menu", displayUserMenu);
+    $("body").on("click", ".main-menu", getMealDataForMenu);
     $("main").on("click", ".random-meal", getRandomMeal);
     $("main").on("click", ".view-meals", getAndDisplayMeals);
     $("main").on("click", ".edit-meal", editMeal);
