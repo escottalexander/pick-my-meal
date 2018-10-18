@@ -4,12 +4,13 @@ const mongoose = require('mongoose');
 const passport = require("passport");
 const bodyParser = require("body-parser");
 
+mongoose.Promise = global.Promise;
+
 const {
     router: authRouter,
     localStrategy,
     jwtStrategy
 } = require('./auth');
-mongoose.Promise = global.Promise;
 
 const {
     DATABASE_URL,
@@ -36,6 +37,7 @@ app.use(function (req, res, next) {
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
 app.use(express.json());
 
 passport.use(localStrategy);
@@ -49,6 +51,7 @@ const jwtAuth = passport.authenticate('jwt', {
 
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
+/** Notice all requests to meals endpoint are authenticated with our JWT strategy. */
 app.use("/meals", jwtAuth, mealRouter);
 
 
@@ -61,9 +64,7 @@ app.use('*', (req, res) => {
 
 let server;
 
-// this function starts our server and returns a Promise.
-// In our test code, we need a way of asynchronously starting
-// our server, since we'll be dealing with promises there.
+/** This function starts the server and returns a Promise. */
 function runServer(databaseUrl, port = PORT) {
     return new Promise((resolve, reject) => {
         mongoose.connect(databaseUrl, err => {
@@ -82,8 +83,7 @@ function runServer(databaseUrl, port = PORT) {
     });
 }
 
-// this function closes the server, and returns a promise. we'll
-// use it in our integration tests later.
+/** This function closes the server, and returns a Promise. */
 function closeServer() {
     return mongoose.disconnect().then(() => {
         return new Promise((resolve, reject) => {
@@ -98,8 +98,6 @@ function closeServer() {
     });
 }
 
-// if server.js is called directly (aka, with `node server.js`), this block
-// runs. but we also export the runServer command so other code (for instance, test code) can start the server as needed.
 if (require.main === module) {
     runServer(DATABASE_URL).catch(err => console.error(err));
 }
