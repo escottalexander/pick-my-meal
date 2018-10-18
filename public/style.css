@@ -136,6 +136,13 @@ li {
 
 }
 
+.back {
+    padding: 15px;
+    float: left;
+    text-decoration: none;
+    color: #00415E;
+}
+
 .log-out {
     padding: 15px;
     float: right;
@@ -262,6 +269,12 @@ p.error {
     background-color: #d3d3d3;
     color: #00415E;
     cursor: default;
+}
+
+@media screen and (min-width: 320px) {
+    .meal {
+        margin: 15px;
+    }
 }
 
 @media screen and (min-width: 600px) {
