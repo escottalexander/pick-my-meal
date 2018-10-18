@@ -8,25 +8,6 @@ body {
     background-color: #F9DAD8;
 }
 
-header {
-    font-family: 'Charmonman', cursive;
-    font-size: 30px;
-    width: 100%;
-    padding-top: 80px;
-}
-
-label {
-    font-size: 20px;
-    font-weight: 800;
-    margin: 10px;
-    display: block;
-}
-
-input {
-    padding: 10px;
-    border: 2px solid #00415E;
-}
-
 nav {
     background: repeating-linear-gradient(45deg,
         #daf2f2,
@@ -56,11 +37,29 @@ nav p {
     float: right;
 }
 
-nav a:hover,
-nav a:active {
+nav a:hover {
     color: #ffffff;
     background-color: #00415E;
     cursor: pointer;
+}
+
+header {
+    font-family: 'Charmonman', cursive;
+    font-size: 30px;
+    width: 100%;
+    padding-top: 80px;
+}
+
+label {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 10px;
+    display: block;
+}
+
+input {
+    padding: 10px;
+    border: 2px solid #00415E;
 }
 
 footer {
@@ -264,9 +263,6 @@ p.error {
     color: #00415E;
     cursor: default;
 }
-
-/* font-family: 'Trade Gothic W01', sans-serif; */
-@media screen and (min-width: 320px) {}
 
 @media screen and (min-width: 600px) {
     .main-view {
