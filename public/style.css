@@ -136,6 +136,13 @@ li {
 
 }
 
+.back {
+    padding: 15px;
+    float: left;
+    text-decoration: none;
+    color: #00415E;
+}
+
 .log-out {
     padding: 15px;
     float: right;
