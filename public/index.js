@@ -396,7 +396,7 @@ function addMeal(event) {
 }
 
 /** This function runs on page load and handles all the click events and loads the initial view, the log in screen */
-$(function () {
+function handleEvents() {
     logInScreen();
     $("main").on("click", ".log-in", logInSequence);
     $("main").on("click", ".create-user", createUser);
@@ -410,4 +410,6 @@ $(function () {
     $("main").on("click", ".save", saveMeal);
     $("main").on("click", ".add-meal", addMeal);
     $("main").on("click", ".delete-meal", deleteMeal);
-});
+}
+
+$(handleEvents);
