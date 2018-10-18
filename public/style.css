@@ -8,7 +8,67 @@ body {
     background-color: #F9DAD8;
 }
 
+nav {
+    background: repeating-linear-gradient(45deg,
+        #daf2f2,
+        #daf2f2 30px,
+        #ffffff 30px,
+        #ffffff 60px);
+    min-width: 280px;
+    overflow: hidden;
+    border-bottom: 2px solid #00415E;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    font-family: 'Sorts Mill Goudy', serif;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    font-size: 15px;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+nav p {
+    margin: 0;
+    letter-spacing: normal;
+    padding: 15px;
+    text-transform: none;
+    float: right;
+}
+
+nav a:hover {
+    color: #ffffff;
+    background-color: #00415E;
+    cursor: pointer;
+}
+
+header {
+    font-family: 'Charmonman', cursive;
+    font-size: 30px;
+    width: 100%;
+    padding-top: 80px;
+}
+
+label {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 10px;
+    display: block;
+}
+
+input {
+    padding: 10px;
+    border: 2px solid #00415E;
+}
+
 footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
+    border-top: 2px solid #00415E;
     position: relative;
     bottom: 0px;
     height: 100px;
@@ -17,8 +77,9 @@ footer {
     font-family: 'Sorts Mill Goudy', serif;
     font-weight: 800;
     letter-spacing: 0.1em;
-    font-size: 13px;
+    font-size: 18px;
     text-align: center;
+    min-width: 280px;
     background: repeating-linear-gradient(45deg,
         #daf2f2,
         #daf2f2 30px,
@@ -34,8 +95,8 @@ footer p {
 button {
     margin-left: auto;
     margin-right: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     display: block;
     min-width: 115px;
     padding-top: 5px;
@@ -51,136 +112,157 @@ button {
     letter-spacing: 0.1em;
     font-size: 13px;
     text-transform: uppercase;
-    text-decoration: none;
 }
 
 button:hover {
     color: #ffffff;
     background-color: #00415E;
+    cursor: pointer;
 }
 
-.meal {
-    overflow: auto;
-    padding: 20px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-radius: 2px;
-    border: 2px solid #59906C;
+ul {
+    list-style: none;
+    list-style-position: inside;
+    padding-left: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
-.meal button {
-    margin-bottom: 20px;
-    min-width: 75px;
-    line-height: 20px;
-}
+li {
+    margin: 5px;
 
-.meal::after {
-    clear: both;
-}
-
-.edit-meal {
-    float: left;
-}
-
-.delete-meal {
-    float: right;
-}
-
-.dish-name {
-    font-size: 24px;
-    font-family: 'Charmonman', cursive;
-}
-
-.main-view {
-
-    min-height: 100vh;
-    height: 100%;
-    text-align: center;
-    background-color: #ffffff;
-}
-
-header {
-    font-family: 'Charmonman', cursive;
-    font-size: 30px;
-    width: 100%;
-    padding: 20px;
-    padding-top: 60px;
-}
-
-label {
-    font-size: 20px;
-    font-weight: 800;
-    margin: 10px;
-    display: block;
-}
-
-input {
-    padding: 10px;
-    border: 2px solid #00415E;
-}
-
-nav {
-    overflow: hidden;
-    border-bottom: 2px solid #00415E;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    font-family: 'Sorts Mill Goudy', serif;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    font-size: 15px;
-    text-transform: uppercase;
-    text-decoration: none;
 }
 
 .log-out {
     padding: 15px;
     float: right;
+    text-decoration: none;
+    color: #00415E;
 }
-
-nav p {
-    margin: 0;
-    letter-spacing: normal;
-    padding: 15px;
-    display: inline;
-    text-transform: none;
-    float: right;
-}
-
-nav a {
-    display: inline;
-}
-
-nav a:hover {
-    color: #ffffff;
-    background-color: #00415E;
-}
-
 
 .main-menu {
     padding: 15px;
     float: left;
+    text-decoration: none;
+    color: #00415E;
 }
 
+.selected,
+.selected:hover {
+    padding: 15px;
+    float: left;
+    color: #ffffff;
+    background-color: #00415E;
+    cursor: default;
+    text-decoration: none;
+}
 
+.main-view {
+    min-height: calc(100vh - 100px);
+    height: 100%;
+    min-width: 280px;
+    text-align: center;
+    background-color: #ffffff;
+}
+
+.meals {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-items: stretch;
+    border-radius: 25px;
+}
+
+.meal {
+    background-color: #ffffff;
+    width: 100%;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: 2px solid #59906C;
+    font-size: 18px;
+}
+
+.random-meal-design {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #ffffff;
+    width: 100%;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: 2px solid #59906C;
+    font-size: 18px;
+}
+
+.side-dish {
+    font-weight: 800;
+}
+
+.cuisine {
+    font-weight: 800;
+}
+
+.create-user {
+    margin: 40px auto 60px;
+}
+
+.add-meal {
+    margin: 15px auto 50px;
+}
+
+.edit-meal {
+    margin-bottom: 20px;
+    min-width: 75px;
+    line-height: 20px;
+    float: left;
+}
+
+.delete-meal {
+    margin-bottom: 20px;
+    min-width: 75px;
+    line-height: 20px;
+    float: right;
+}
+
+.meal-name {
+    font-size: 24px;
+    font-family: 'Charmonman', cursive;
+}
 
 .msg-handler {
+    padding: 10px;
     margin: 10px 0;
     position: static;
     text-align: center;
-    background-color: #EEECEF;
-    color: red;
-    border: 5px solid #326892;
+    font-size: 18px;
+    background-color: #d3d3d3;
+    color: #00415E;
+    border: 2px solid #00415E;
     border-radius: 5px;
+}
+
+p.error {
+    color: #ff0000;
 }
 
 .hidden {
     display: none;
 }
 
-/* font-family: 'Trade Gothic W01', sans-serif; */
-@media screen and (min-width: 320px) {}
+.disabled,
+.disabled:hover {
+    background-color: #d3d3d3;
+    color: #00415E;
+    cursor: default;
+}
 
 @media screen and (min-width: 600px) {
     .main-view {
@@ -188,27 +270,45 @@ nav a:hover {
         margin-right: 20%;
     }
 
-    .meal {}
-}
-
-@media screen and (min-width: 900px) {
-
-    .add-meal {
-        clear: left;
-    }
-
-    .meal::after {
-        clear: both;
+    .meals {
+        padding: 5px;
     }
 
     .meal {
-        float: left;
+        margin: 10px 5px;
+    }
+
+    .random-meal-design {
+        width: 80%;
+    }
+}
+
+@media screen and (min-width: 900px) {
+    button {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+
+    .meal button {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .meal {
+        width: 48%;
+    }
+
+    .random-meal-design {
         width: 50%;
     }
 }
 
 @media screen and (min-width: 1200px) {
     .meal {
-        width: 33.333%;
+        width: 30%;
+    }
+
+    .random-meal-design {
+        width: 40%;
     }
 }
