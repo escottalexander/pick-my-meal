@@ -264,6 +264,12 @@ p.error {
     cursor: default;
 }
 
+@media screen and (min-width: 320px) {
+    .meal {
+        margin: 15px;
+    }
+}
+
 @media screen and (min-width: 600px) {
     .main-view {
         margin-left: 20%;
