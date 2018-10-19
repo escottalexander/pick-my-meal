@@ -2,16 +2,12 @@ const express = require("express");
 const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-// const LocalStrategy = require("passport-local");
-//const flash = require("connect-flash");
-//const passportLocalMongoose = require("passport-local-mongoose");
-const passport = require("passport");
 
 const {
     User
 } = require('./models');
 
-//POST Register
+/** This endpoint registers a new user after hashing the password and various checks to make sure username and password abide certain rules.*/
 router.post("/register", jsonParser, function (req, res) {
     const requiredFields = ['name', 'username', 'password'];
     const missingField = requiredFields.find(field => !(field in req.body));
@@ -36,13 +32,6 @@ router.post("/register", jsonParser, function (req, res) {
             location: nonStringField
         });
     }
-    // If the username and password aren't trimmed we give an error.  Users might
-    // expect that these will work without trimming (i.e. they want the password
-    // "foobar ", including the space at the end).  We need to reject such values
-    // explicitly so the users know what's happening, rather than silently
-    // trimming them and expecting the user to understand.
-    // We'll silently trim the other fields, because they aren't credentials used
-    // to log in, so it's less of a problem.
     const explicityTrimmedFields = ['username', 'password'];
     const nonTrimmedField = explicityTrimmedFields.find(
         field => req.body[field].trim() !== req.body[field]
@@ -62,8 +51,6 @@ router.post("/register", jsonParser, function (req, res) {
         },
         password: {
             min: 10,
-            // bcrypt truncates after 72 characters, so let's not give the illusion
-            // of security by storing extra (unused) info
             max: 72
         }
     };
@@ -77,7 +64,6 @@ router.post("/register", jsonParser, function (req, res) {
         'max' in sizedFields[field] &&
         req.body[field].trim().length > sizedFields[field].max
     );
-
     if (tooSmallField || tooLargeField) {
         return res.status(422).json({
             code: 422,
@@ -101,7 +87,6 @@ router.post("/register", jsonParser, function (req, res) {
         .countDocuments()
         .then(count => {
             if (count > 0) {
-                // There is an existing user with the same username
                 return Promise.reject({
                     code: 406,
                     reason: 'ValidationError',
@@ -109,7 +94,6 @@ router.post("/register", jsonParser, function (req, res) {
                     location: 'username'
                 });
             }
-            // If there is no existing user, hash the password
             return User.hashPassword(password);
         })
         .then(hash => {
@@ -123,8 +107,6 @@ router.post("/register", jsonParser, function (req, res) {
             return res.status(201).json(user.serialize());
         })
         .catch(err => {
-            // Forward validation errors on to the client, otherwise give a 500
-            // error because something unexpected has happened
             if (err.reason === 'ValidationError') {
                 return res.status(err.code).json(err);
             }
@@ -135,7 +117,7 @@ router.post("/register", jsonParser, function (req, res) {
         });
 });
 
-//PUT Change name NOT username or password
+/** This endpoint can be used to change the name of a user. It is not currently used by the client. */
 router.put('/:id', (req, res) => {
 
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
@@ -148,7 +130,6 @@ router.put('/:id', (req, res) => {
             req.body.id
         }) must match `);
         console.error(message);
-        // we return here to break out of this function
         return res.status(400).json({
             message: message
         });
@@ -173,7 +154,7 @@ router.put('/:id', (req, res) => {
         }));
 });
 
-//DELETE user
+/** This endpoint is used for deleting a user from the database. It is not currently used by the client. */
 router.delete('/:id', (req, res) => {
     User
         .findByIdAndRemove(req.params.id)
@@ -185,7 +166,7 @@ router.delete('/:id', (req, res) => {
         }));
 });
 
-//GET User for development only
+/** This endpoint is used to get a list of all users. It is not currently used by the client. */
 router.get('/', (req, res) => {
     User
         .find()

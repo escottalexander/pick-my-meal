@@ -5,7 +5,7 @@ const {
     Meal
 } = require('./models');
 
-//GET Pull up users meals
+/** This endpoint is used to get the authenticated user's meals from the database. */
 router.get('/', (req, res) => {
     Meal
         .find({
@@ -26,7 +26,7 @@ router.get('/', (req, res) => {
             });
 });
 
-//POST Add a meal
+/** This endpoint is used to add a new meal to the authenticated user's meal array in the database. */
 router.post('/', (req, res) => {
     const requiredFields = ['mealName'];
     for (let i = 0; i < requiredFields.length; i++) {
@@ -53,7 +53,7 @@ router.post('/', (req, res) => {
         });
 });
 
-//PUT edit meal
+/** This endpoint is used to update a specific meal in the authenticated user's database. */
 router.put('/:id', (req, res) => {
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         const message = (
@@ -85,7 +85,7 @@ router.put('/:id', (req, res) => {
         }));
 });
 
-//DELETE meal
+/** This endpoint is used to delete a meal from the authenticated user's meal array in the database. */
 router.delete('/:id', (req, res) => {
     Meal
         .findByIdAndRemove(req.params.id)

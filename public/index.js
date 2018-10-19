@@ -18,6 +18,7 @@ function logInScreen() {
 function createUser() {
     event.preventDefault();
     $('main').empty();
+    navBar("register");
     $('main').append(
         `<h2>Please register by filling out the form below</h2>
         <div class="msg-handler hidden" aria-live="assertive"></div>
@@ -31,10 +32,8 @@ function createUser() {
         `);
 }
 
-/** This function runs when the login button is pressed. First it takes the entered 
- * username and password values and assigns them to an object. Then some tests are 
- * run to make sure the username and password abide by the servers rules. If they pass
- * the test, they are sent to the server via AJAX request. Otherwise an error is displayed
+/** This function runs when the login button is pressed. It runs some tests to make sure 
+ * the username and password abide by the servers rules. Otherwise an error is displayed
  * to the user with the problem.  */
 function logInSequence() {
     event.preventDefault();
@@ -262,15 +261,23 @@ function getMealDataForMenu() {
 /** This function renders the navigation bar at the top of the page after the user logs in. 
  * It also handles the disabling of the main menu button when the user is on that page. */
 function navBar(page) {
-    $('nav').detach();
-    let user = JSON.parse(localStorage.getItem('user'));
-    $('body').prepend(`
+    if (page === "register") {
+        $('body').prepend(`
+        <nav>
+        <a href='' class='back' role='button'>Back to log in</a>
+        </nav>
+        `);
+    } else {
+        $('nav').detach();
+        let user = JSON.parse(localStorage.getItem('user'));
+        $('body').prepend(`
 <nav>
 ${page === "mainView"? "<a class='selected' >Main Menu</a>" : "<a href='' class='main-menu' role='button'>Main Menu</a>" }
 <a href='' class='log-out' role='button'>Log Out</a>
 <p>Logged in as ${user.name}</p>
 </nav>
 `);
+    }
 }
 
 /** This function renders the user menu. */
@@ -389,7 +396,7 @@ function addMeal(event) {
 }
 
 /** This function runs on page load and handles all the click events and loads the initial view, the log in screen */
-$(function () {
+function handleEvents() {
     logInScreen();
     $("main").on("click", ".log-in", logInSequence);
     $("main").on("click", ".create-user", createUser);
@@ -403,4 +410,6 @@ $(function () {
     $("main").on("click", ".save", saveMeal);
     $("main").on("click", ".add-meal", addMeal);
     $("main").on("click", ".delete-meal", deleteMeal);
-});
+}
+
+$(handleEvents);

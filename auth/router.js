@@ -3,8 +3,8 @@ const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
-
 const config = require('../config');
+
 const router = express.Router();
 
 const createAuthToken = function (user) {
@@ -20,8 +20,10 @@ const createAuthToken = function (user) {
 const localAuth = passport.authenticate('local', {
     session: false
 });
+
 router.use(bodyParser.json());
-// The user provides a username and password to login
+
+/** This endpoint authenticates the user by the local strategy and then gives them a token to be used to authenticate with our JWT strategy. */
 router.post('/login', localAuth, (req, res) => {
     const authToken = createAuthToken(req.user.serialize());
     res.json({
@@ -37,7 +39,7 @@ const jwtAuth = passport.authenticate('jwt', {
     session: false
 });
 
-// The user exchanges a valid JWT for a new one with a later expiration
+/** This endpoint takes an existing valid JWT token and returns a fresh token. */
 router.post('/refresh', jwtAuth, (req, res) => {
     const authToken = createAuthToken(req.user);
     res.json({
