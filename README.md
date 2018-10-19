@@ -1,18 +1,18 @@
 # Pick My Meal - Solving Couples' Greatest Challenge
 
-*"What do you want for dinner, Honey?"*
+*"What do you want for dinner, Honey?"*  
 *"I don't know, Dear. What do you want?"*
 
 **Can't decide on what to have for dinner? Me too!**
 
 That is why I created Pick My Meal. To help couples land on a meal decision literally at the click of a button.
 
-You can visit a live version of Pick My Meal at this link on Heroku: [Pick My Meal](https://mysterious-wave-24792.herokuapp.com/)
+You can visit a live version of Pick My Meal at this link on Heroku: [Pick My Meal](https://mysterious-wave-24792.herokuapp.com/)  
 Be mindful, apps hosted on Heroku take about 30 seconds to spin up before they load.
 
 ### How to use Pick My Meal
 
-You create an account and login.
+First, you create an account and login.
 
 ![Pick My Meal Log In Screen](images/pickmymeal-login.png)
 
