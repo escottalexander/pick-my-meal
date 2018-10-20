@@ -2,7 +2,10 @@
 function logInScreen() {
     $('main').empty();
     $('main').append(
-        `<h2>Please log in to see your meals</h2>
+        `<p class="dialog">"What do you want for dinner, Honey?"</p>
+        <p class="dialog">"I don't know, Dear. What do you want?"</p>
+        <h2>Trouble deciding what to have for dinner?</h2>
+        <h2>Log in for help with deciding.</h2>
         <div class="msg-handler hidden" aria-live="assertive"></div>
         <form action='none'>
         <label for="username">Username</label><input id="username" type="username" name="username" value="TrialAccount"></input>
